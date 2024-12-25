@@ -1,2 +1,2 @@
 set -xe
-gcc rvm.c -o rvm -Wall -Wextra
+gcc rvm.c rasmlexer.c -o rvm -Wall -Wextra
