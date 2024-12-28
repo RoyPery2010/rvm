@@ -1,6 +1,7 @@
 #include "rvm.h"
 #include "rasmlexer.h"
 
+
 Inst program[] = {
     DEF_INST_PUSH(1),
     DEF_INST_PUSH(4),
@@ -27,7 +28,7 @@ void push(Machine *machine, int value) {
 }
 int pop(Machine *machine) {
     if(machine->stack_size <= 0) {
-        fprintf(stderr, "ERROR: Stack Underflow\n");
+        fprintf(stderr, "ERROR: rvm - Stack Underflow\n");
         exit(1);
     }
     int value = machine->stack[machine->stack_size - 1];
@@ -64,7 +65,8 @@ void write_program_to_file(Machine *machine, char *file_path) {
         fprintf(stderr, "ERROR: Could not write to file %s\n", file_path);
         exit(1);
     }
-    fwrite(machine->instructions, sizeof(machine->instructions[0]), PROGRAM_SIZE, file);
+    int count = fwrite(machine->instructions, sizeof(Inst), PROGRAM_SIZE, file);
+    printf("Written %d / %lu instructions to file %s\n", count, PROGRAM_SIZE, file_path);
 
     fclose(file);
 }
@@ -80,7 +82,7 @@ Machine *read_program_from_file(Machine *machine, char *file_path) {
     int length = ftell(file);
     fseek(file, 0, SEEK_SET);
     fread(instructions, sizeof(instructions[0]), length / 8, file);
-
+    printf("PROGRAM_SIZE: %zu, length: %d, %ld\n", sizeof(&instructions)/sizeof(instructions[0]), length/8, PROGRAM_SIZE);
     machine->program_size = length / 8;
     machine->instructions = instructions;
     machine->stack_size = 0;
@@ -89,13 +91,16 @@ Machine *read_program_from_file(Machine *machine, char *file_path) {
 }
 void run_instructions(Machine *machine) {
     int a, b;
+    printf("RUNNING\n");
+    printf("run_instructions - program_size = %d\n", machine->program_size); 
     for (int ip = 0; ip < machine->program_size; ip++) {
-        //print_stack(loaded_machine);
+        print_stack(machine);
+        printf("run_instruction ip = %d type = %d\n", ip, (int) machine->instructions[ip].type);
         switch(machine->instructions[ip].type) {
-	    case INST_NOP:
-		continue;
+	        case INST_NOP:
+		        continue;
             case INST_PUSH:
-            //printf("push %d\n", loaded_machine->instructions[ip].value);
+                //printf("push %d\n", machine->instructions[ip].value);
                 push(machine, machine->instructions[ip].value);
                 break;
             case INST_POP:
@@ -107,6 +112,7 @@ void run_instructions(Machine *machine) {
                 push(machine, a);
                 break;
             case INST_INDUP:
+                //printf("indup %d\n", machine->instructions[ip].value);
                 index_dup(machine, machine->instructions[ip].value);
                 break;
             case INST_SWAP:
@@ -142,6 +148,11 @@ void run_instructions(Machine *machine) {
                     exit(1);
                 }
                 push(machine, b / a);
+                break;
+            case INST_MOD:
+                a = pop(machine);
+                b = pop(machine);
+                push(machine, a % b);
                 break;
             case INST_CMPE:
                 a = pop(machine);
@@ -210,16 +221,16 @@ void run_instructions(Machine *machine) {
 		        }
 		        break;
             case INST_JMP:
-                ip = machine->instructions[ip].value - 1;
+                ip = machine->instructions[ip].value;
                 if (ip + 1 >= machine->program_size) {
                         fprintf(stderr, "ERROR: Cannot jump out of bounds\n");
                         exit(1);
-                    }
+                }
                 break;
             case INST_ZJMP:
                 if (pop(machine) == 0) {
                     printf("IP: %d\n", ip);
-                    ip = machine->instructions[ip].value - 1;
+                    ip = machine->instructions[ip].value;
                     if (ip + 1 >= machine->program_size) {
                         fprintf(stderr, "ERROR: Cannot jump out of bounds\n");
                         exit(1);
@@ -232,7 +243,7 @@ void run_instructions(Machine *machine) {
             case INST_NZJMP:
                 if (pop(machine) != 0) {
                     printf("IP: %d\n", ip);
-                    ip = machine->instructions[ip].value - 1;
+                    ip = machine->instructions[ip].value;
                     if (ip + 1 >= machine->program_size) {
                         fprintf(stderr, "ERROR: Cannot jump out of bounds\n");
                         exit(1);
@@ -251,8 +262,8 @@ void run_instructions(Machine *machine) {
         }
     }
 }
-
-int main() {
+/*
+int rvm() {
     lexer();
     Machine *loaded_machine = malloc(sizeof(Machine));
     loaded_machine->instructions = program;
@@ -262,3 +273,4 @@ int main() {
     print_stack(loaded_machine);
     return 0;
 }
+*/

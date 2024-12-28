@@ -1,7 +1,7 @@
 #pragma once
 
-
-
+#define MAX_TOKEN_STACK_SIZE 1024
+#include <stdbool.h>
 typedef enum {
     TYPE_NONE = -1,
     TYPE_NOP = 0,
@@ -15,6 +15,7 @@ typedef enum {
     TYPE_SUB,
     TYPE_MUL,
     TYPE_DIV,
+    TYPE_MOD,
     TYPE_CMPE,
     TYPE_CMPNE,
     TYPE_CMPG,
@@ -25,6 +26,7 @@ typedef enum {
     TYPE_ZJMP,
     TYPE_NZJMP,
     TYPE_PRINT,
+    TYPE_INT,
     TYPE_HALT,
 } TokenType;
 
@@ -35,4 +37,11 @@ typedef struct {
     int character;
 } Token;
 
-int lexer();
+typedef struct {
+    Token token_stack[MAX_TOKEN_STACK_SIZE];
+    int stack_size;
+    char *file_name;
+} Lexer;
+
+Lexer lexer(char *file_name);
+void print_token(Token token);

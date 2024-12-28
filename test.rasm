@@ -1,6 +1,6 @@
-push
-push
+push 3
+push 5
+mod
+jmp 4
 nop
-pop
-pop
-push
+print

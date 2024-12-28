@@ -25,6 +25,24 @@ char *open_file(char *file_path, int *length) {
     return current;
 }
 
+void push_token(Lexer *lexer, Token value) {
+    if(lexer->stack_size >= MAX_TOKEN_STACK_SIZE) {
+        fprintf(stderr, "ERROR: Stack Overflow\n");
+        exit(1);
+    }
+    lexer->stack_size++;
+    lexer->token_stack[lexer->stack_size] = value;
+}
+
+Token pop_token(Lexer *lexer) {
+    if(lexer->stack_size <= 0) {
+        fprintf(stderr, "ERROR: Stack Underflow\n");
+        exit(1);
+    }
+    lexer->stack_size--;
+    return lexer->token_stack[lexer->stack_size];
+}
+
 Token init_token(TokenType type, char *text, int line, int character) {
     Token token = {.type = type, .text = text, .line = line, .character = character};
     return token;
@@ -54,6 +72,8 @@ TokenType check_builtin_keywords(char *name) {
         return TYPE_MUL;
     } else if (strcmp(name, "div") == 0) {
         return TYPE_DIV;
+    } else if (strcmp(name, "mod") == 0) {
+        return TYPE_MOD;
     } else if (strcmp(name, "cmpe") == 0) {
         return TYPE_CMPE;
     } else if (strcmp(name, "cmpne") == 0) {
@@ -80,6 +100,7 @@ TokenType check_builtin_keywords(char *name) {
     return TYPE_NONE;
 }
 void print_token(Token token) {
+    assert(&token != NULL && "ERROR: Token cannot be NULL\n");
     switch (token.type) {
         case TYPE_NONE:
             printf("Found NONE\n");
@@ -117,6 +138,9 @@ void print_token(Token token) {
         case TYPE_DIV:
             printf("Found DIV\n");
             break;
+        case TYPE_MOD:
+            printf("Found MOD\n");
+            break;
         case TYPE_CMPE:
             printf("Found CMPE\n");
             break;
@@ -147,9 +171,14 @@ void print_token(Token token) {
         case TYPE_PRINT:
             printf("Found PRINT\n");
             break;
+        case TYPE_INT:
+            printf("Found TYPE_INT\n");
+            break;
         case TYPE_HALT:
             printf("Found HALT\n");
             break;
+        default:
+            assert(false);
     }
     //printf("text: %s, line: %d, character: %d\n", token.text, token.line, token.character);
 }
@@ -167,28 +196,52 @@ Token generate_keyword(char *current, int *current_index, int line, int characte
     TokenType type = check_builtin_keywords(keyword_name);
     assert(type != TYPE_NONE && "Custom identifiers are not implemented yet!");
     Token token = init_token(type, keyword_name, line, character);
+    print_token(token);
     return token;
 }
 
-int lexer() {
+Token generate_int(char *current, int *current_index, int line, int character) {
+    //printf("current_index %d line %d character %d\n", *current_index, line, character);
+    char *keyword_name = malloc(sizeof(char) * 16);
+    int keyword_length = 0;
+    while (isdigit(current[*current_index])) {
+        keyword_name[keyword_length] = current[*current_index];
+        *current_index += 1;
+        keyword_length++;
+    }
+    keyword_name[keyword_length] = '\0';
+    TokenType type = TYPE_INT;
+    Token token = init_token(type, keyword_name, line, character);
+    return token;
+}
+
+Lexer lexer(char *file_name) {
     int length;
-    char *current = open_file("test.rasm", &length);
     int current_index = 0;
+    char *current = open_file(file_name, &length);
     int line = 1;
     int character = 1;
 
+    Lexer lex = {.stack_size = 0, .file_name = "test.rasm"};
     while (current_index < length) {
+        if (current[current_index] == '\n') {
+            line++;
+            character = 0;
+        }
         if(isalpha(current[current_index])) {
             Token token = generate_keyword(current, &current_index, line, character);
-            print_token(token);
+            push_token(&lex, token);
+            current_index--;
         } else if (isdigit(current[current_index])) {
-            printf("NUMBERIC\n");
-        } else if (current[current_index] == '\n') {
-            line++;
-            current_index++;
+            Token token = generate_int(current, &current_index, line, character);
+            push_token(&lex, token);
+            current_index--;
         }
-        //
-        //character++;
+        character++;
+        current_index++;
     }
-    return 0;
+    for (int i = 0; i < lex.stack_size; i++) {
+        //print_token(lex.token_stack[i]);
+    }
+    return lex;
 }

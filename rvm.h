@@ -18,6 +18,7 @@ typedef enum {
     INST_SUB,
     INST_MUL,
     INST_DIV,
+    INST_MOD,
     INST_CMPE,
     INST_CMPNE,
     INST_CMPG,
@@ -54,6 +55,7 @@ typedef struct {
 #define DEF_INST_SUB() {.type = INST_SUB}
 #define DEF_INST_MUL() {.type = INST_MUL}
 #define DEF_INST_DIV() {.type = INST_DIV}
+#define DEF_INST_MOD() {.type = INST_MOD}
 #define DEF_INST_CMPE() {.type = INST_CMPE}
 #define DEF_INST_CMPNE() {.type = INST_CMPNE}
 #define DEF_INST_CMPG() {.type = INST_CMPG}
@@ -65,6 +67,7 @@ typedef struct {
 #define DEF_INST_NZJMP(i) {.type = INST_NZJMP, .value = i}
 #define DEF_INST_PRINT() {.type = INST_PRINT}
 #define DEF_INST_HALT() {.type = INST_HALT}
+
 void push(Machine *machine, int value);
 int pop(Machine *machine);
 void index_swap(Machine *machine, int index);
@@ -73,4 +76,4 @@ void print_stack(Machine *machine);
 void write_program_to_file(Machine *machine, char *file_path);
 Machine *read_program_from_file(Machine *machine, char *file_path);
 void run_instructions(Machine *machine);
-int main();
+int rvm();
