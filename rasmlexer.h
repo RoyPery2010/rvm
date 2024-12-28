@@ -27,6 +27,8 @@ typedef enum {
     TYPE_NZJMP,
     TYPE_PRINT,
     TYPE_INT,
+    TYPE_LABEL_DEF,
+    TYPE_LABEL,
     TYPE_HALT,
 } TokenType;
 

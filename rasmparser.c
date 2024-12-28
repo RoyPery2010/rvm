@@ -2,22 +2,33 @@
 
 void append(ParseList *head, Token value)
 {
-    ParseList *tmp = head;
-    while (tmp->next != NULL)
-    {
-        tmp = tmp->next;
-    }
     ParseList *ptr = malloc(sizeof(ParseList));
     ptr->value = value;
     ptr->next = NULL;
+
+    ParseList *tmp = head;
+    while (tmp->next != NULL) {
+        tmp = tmp->next;
+    }
     tmp->next = ptr;
+    
 }
 
-void generate_list(ParseList *root, Lexer *lexer)
+void handle_token_def(Lexer *lex, int index, HashMap* hashmap) {
+    int line_num = lex->token_stack[index].line - 1;
+    printf("%d-------\n", line_num);
+    char *text = lex->token_stack[index].text;
+    insert(hashmap, text, line_num);
+    printf("\tMap label %s to %d\n", text, line_num);
+    lex->token_stack[index].type = TYPE_NOP;
+}
+
+void generate_list(ParseList *root, Lexer *lexer, HashMap* hashmap)
 {
     assert(root != NULL && "Root cannot equal NULL\n");
-    for (int index = 1; index < lexer->stack_size; index++)
+    for (int index = 1; index <= lexer->stack_size; index++)
     {
+        printf("PARSE %d: ", index); print_token(lexer->token_stack[index]);
         switch (lexer->token_stack[index].type) {
             case TYPE_NONE:
                 assert(false && "Token should not be NONE\n");
@@ -109,6 +120,13 @@ void generate_list(ParseList *root, Lexer *lexer)
             case TYPE_INT:
                 append(root, lexer->token_stack[index]);
                 break;
+            case TYPE_LABEL_DEF:
+                handle_token_def(lexer, index, hashmap);
+                append(root, lexer->token_stack[index]);
+                break;
+            case TYPE_LABEL:
+                append(root, lexer->token_stack[index]);
+                break;
             case TYPE_HALT:
                 append(root, lexer->token_stack[index]);
                 break;
@@ -120,16 +138,41 @@ void generate_list(ParseList *root, Lexer *lexer)
 
 void print_list(ParseList *head)
 {
+    printf("Start ParseList\n");
     while (head != NULL)
     {
         print_token(head->value);
+        head = head->next;
+    }
+    printf("End ParseList\n");
+}
+
+void check_labels(ParseList *head, HashMap* hashmap) {
+    while(head != NULL) {
+        if (head->value.type == TYPE_LABEL){
+            int label_index = get(hashmap, head->value.text);
+            printf("%d\n", label_index);
+            if (label_index == -1) {
+                fprintf(stderr, "ERROR: Undeclared label: %s\n", head->value.text);
+                exit(1);
+            }
+            printf("\tReplace label %s with %d\n", head->value.text, label_index);
+            head->value.type = TYPE_INT;
+            sprintf(head->value.text, "%d", label_index);
+        }
         head = head->next;
     }
 }
 
 ParseList parser(Lexer lexer)
 {
+    HashMap *label_map = createHashMap();
+    if (lexer.token_stack[0].type == TYPE_LABEL_DEF) {
+        handle_token_def(&lexer, 0, label_map);
+    }
     ParseList root = {.value = lexer.token_stack[0], .next = NULL};
-    generate_list(&root, &lexer);
+    generate_list(&root, &lexer, label_map);
+    check_labels(&root, label_map);
+    print_list(&root);
     return root;
 }

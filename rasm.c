@@ -13,13 +13,14 @@ int generate_instructions(ParseList *head, Inst *program) {
             case TYPE_NOP:
                 instruction.type = INST_NOP;
                 program[program_size] = instruction;
+                printf("Add instruction %d = NOP\n", program_size);
                 break;
             case TYPE_PUSH:
                 head = head->next;
                 instruction.type = INST_PUSH;
                 instruction.value = atoi(head->value.text);
                 program[program_size] = instruction;
-                //printf("Add instruction %d = PUSH %d\n", program_size, instruction.value);
+                printf("Add instruction %d = PUSH %d\n", program_size, instruction.value);
                 break;
             case TYPE_POP:
                 instruction.type = INST_POP;
@@ -48,7 +49,7 @@ int generate_instructions(ParseList *head, Inst *program) {
             case TYPE_ADD:
                 instruction.type = INST_ADD;
                 program[program_size] = instruction;
-                //printf("Add instruction %d = ADD\n", program_size);
+                printf("Add instruction %d = ADD\n", program_size);
                 break;
             case TYPE_SUB:
                 instruction.type = INST_SUB;
@@ -93,8 +94,12 @@ int generate_instructions(ParseList *head, Inst *program) {
             case TYPE_JMP:
                 head = head->next;
                 instruction.type = INST_JMP;
+                // HACK: Replace JMP 0 with JMP program_size+1
+                // Remove after fixing case TYPE_LABEL in generate_list
                 instruction.value = atoi(head->value.text);
+                //instruction.value = program_size + 1;
                 program[program_size] = instruction;
+                printf("Add instruction %d = JMP %d\n", program_size, instruction.value);
                 break;
             case TYPE_ZJMP:
                 head = head->next;
@@ -111,9 +116,16 @@ int generate_instructions(ParseList *head, Inst *program) {
             case TYPE_PRINT:
                 instruction.type = INST_PRINT;
                 program[program_size] = instruction;
+                printf("Add instruction %d = PRINT\n", program_size);
                 break;
             case TYPE_INT:
                 assert(false && "ERROR: Should not be INT\n");
+                break;
+            case TYPE_LABEL_DEF:
+                assert(false && "ERROR: Should not be LABEL_DEF\n");
+                break;
+            case TYPE_LABEL:
+                assert(false && "ERROR: Should not be LABEL\n");
                 break;
             case TYPE_HALT:
                 instruction.type = INST_HALT;
@@ -136,7 +148,6 @@ int main(int argc, char *argv[]) {
     Inst program[MAX_PROGRAM_SIZE] = {0};
     Lexer lex = lexer(file_name);
     ParseList list = parser(lex);
-    print_list(&list);
     int program_size = generate_instructions(&list, program);
     Machine machine = {.instructions = program, .program_size = program_size};
     //printf("program_size = %d\n", machine.program_size); 

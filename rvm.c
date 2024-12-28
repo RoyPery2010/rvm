@@ -92,10 +92,10 @@ Machine *read_program_from_file(Machine *machine, char *file_path) {
 void run_instructions(Machine *machine) {
     int a, b;
     printf("RUNNING\n");
-    printf("run_instructions - program_size = %d\n", machine->program_size); 
+    //printf("run_instructions - program_size = %d\n", machine->program_size); 
     for (int ip = 0; ip < machine->program_size; ip++) {
-        print_stack(machine);
-        printf("run_instruction ip = %d type = %d\n", ip, (int) machine->instructions[ip].type);
+        //print_stack(machine);
+        //printf("run_instruction ip = %d type = %d\n", ip, (int) machine->instructions[ip].type);
         switch(machine->instructions[ip].type) {
 	        case INST_NOP:
 		        continue;

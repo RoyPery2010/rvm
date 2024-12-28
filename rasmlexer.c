@@ -174,6 +174,12 @@ void print_token(Token token) {
         case TYPE_INT:
             printf("Found TYPE_INT\n");
             break;
+        case TYPE_LABEL_DEF:
+            printf("Found TYPE LABEL DEF\n");
+            break;
+        case TYPE_LABEL:
+            printf("Found TYPE LABEL\n");
+            break;
         case TYPE_HALT:
             printf("Found HALT\n");
             break;
@@ -182,6 +188,17 @@ void print_token(Token token) {
     }
     //printf("text: %s, line: %d, character: %d\n", token.text, token.line, token.character);
 }
+
+TokenType check_label_type(char *current, int *current_index) {
+    //printf("check_label_type: current_index %d\n", *current_index);
+    //printf("CURRENT CHARACTER: ----%c---\n", current[*current_index]);
+    if(current[*current_index] == ':') {
+        current_index += 1;
+        return TYPE_LABEL_DEF;
+    }
+    return TYPE_LABEL;
+}
+
 Token generate_keyword(char *current, int *current_index, int line, int character) {
     //printf("current_index %d line %d character %d\n", *current_index, line, character);
     char *keyword_name = malloc(sizeof(char) * 16);
@@ -194,6 +211,9 @@ Token generate_keyword(char *current, int *current_index, int line, int characte
     keyword_name[keyword_length] = '\0';
     //printf("keyword_name %s\n", keyword_name);
     TokenType type = check_builtin_keywords(keyword_name);
+    if (type == TYPE_NONE) {
+        type = check_label_type(current, current_index);
+    }
     assert(type != TYPE_NONE && "Custom identifiers are not implemented yet!");
     Token token = init_token(type, keyword_name, line, character);
     print_token(token);
@@ -240,8 +260,8 @@ Lexer lexer(char *file_name) {
         character++;
         current_index++;
     }
-    for (int i = 0; i < lex.stack_size; i++) {
-        //print_token(lex.token_stack[i]);
-    }
+    /*for (int i = 0; i <= lex.stack_size; i++) {
+        print_token(lex.token_stack[i]);
+    }*/
     return lex;
 }
