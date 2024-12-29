@@ -16,6 +16,11 @@ typedef enum {
     TYPE_MUL,
     TYPE_DIV,
     TYPE_MOD,
+    TYPE_ADD_F,
+    TYPE_SUB_F,
+    TYPE_MUL_F,
+    TYPE_DIV_F,
+    TYPE_MOD_F,
     TYPE_CMPE,
     TYPE_CMPNE,
     TYPE_CMPG,
@@ -27,6 +32,8 @@ typedef enum {
     TYPE_NZJMP,
     TYPE_PRINT,
     TYPE_INT,
+    TYPE_FLOAT,
+    TYPE_CHAR,
     TYPE_LABEL_DEF,
     TYPE_LABEL,
     TYPE_HALT,
@@ -44,6 +51,13 @@ typedef struct {
     int stack_size;
     char *file_name;
 } Lexer;
-
-Lexer lexer(char *file_name);
+char *open_file(char *file_path, int *length);
+void push_token(Lexer *lexer, Token value);
+Token pop_token(Lexer *lexer);
+Token init_token(TokenType type, char *text, int line, int character);
+TokenType check_builtin_keywords(char *name);
 void print_token(Token token);
+TokenType check_label_type(char *current, int *current_index);
+Token generate_keyword(char *current, int *current_index, int line, int character);
+Token generate_num(char *current, int *current_index, int line, int character);
+Lexer lexer(char *file_name);

@@ -8,6 +8,7 @@
 #include "rasmparser.h"
 #include "rvm.h"
 
-int main();
+int main(int argc, char *argv[]);
+
 
 #endif

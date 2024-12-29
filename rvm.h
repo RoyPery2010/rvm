@@ -19,6 +19,11 @@ typedef enum {
     INST_MUL,
     INST_DIV,
     INST_MOD,
+    INST_ADD_F,
+    INST_SUB_F,
+    INST_MUL_F,
+    INST_DIV_F,
+    INST_MOD_F,
     INST_CMPE,
     INST_CMPNE,
     INST_CMPG,
@@ -32,13 +37,32 @@ typedef enum {
     INST_HALT,
 } Inst_Set;
 
+typedef union {
+    float as_float;
+    int as_int;
+    char as_char;
+} Word;
+
+typedef enum {
+    INT_TYPE = 0,			
+    FLOAT_TYPE,
+    CHAR_TYPE,
+} DataType;
+
+typedef struct {
+    Word word;
+    DataType type; 
+} Data;
+
+
 typedef struct {
     Inst_Set type;
-    int value;
+    Word value;
+    DataType data_type;
 } Inst;
 
 typedef struct {
-    int stack[MAX_STACK_SIZE];
+    Data stack[MAX_STACK_SIZE];
     int stack_size;
     int program_size;
     Inst *instructions;
@@ -68,12 +92,11 @@ typedef struct {
 #define DEF_INST_PRINT() {.type = INST_PRINT}
 #define DEF_INST_HALT() {.type = INST_HALT}
 
-void push(Machine *machine, int value);
-int pop(Machine *machine);
+void push(Machine *machine, Word value, DataType type);
+Data pop(Machine *machine);
 void index_swap(Machine *machine, int index);
 void index_dup(Machine *machine, int index);
 void print_stack(Machine *machine);
 void write_program_to_file(Machine *machine, char *file_path);
 Machine *read_program_from_file(Machine *machine, char *file_path);
 void run_instructions(Machine *machine);
-int rvm();

@@ -2,6 +2,37 @@
 
 #define MAX_PROGRAM_SIZE 1024
 
+void set_value_float(Inst* inst, float v)
+{
+    inst->data_type = FLOAT_TYPE;
+    inst->value.as_float = v;
+}
+
+void set_value(Inst* inst, ParseList* head, char* name, int program_size)
+{
+    switch(head->value.type) {
+        case TYPE_INT:
+            int i = atoi(head->value.text);
+            inst->data_type = INT_TYPE;
+            inst->value.as_int = i;           
+            printf("Add instruction %d = %s %d\n", program_size, name, i);
+            break;
+        case TYPE_FLOAT:
+            float f = atof(head->value.text);
+            inst->data_type = FLOAT_TYPE;
+            inst->value.as_float = f;           
+            printf("Add instruction %d = %s %f\n", program_size, name, f);
+            break;
+        case TYPE_CHAR:
+            char c = head->value.text[0];
+            inst->data_type = CHAR_TYPE;
+            inst->value.as_char = c;           
+            printf("Add instruction %d = %s %c\n", program_size, name, c);
+            break;
+        default:
+            break;
+    }
+}
 int generate_instructions(ParseList *head, Inst *program) {
     Inst instruction;
     int program_size = 0;
@@ -13,14 +44,13 @@ int generate_instructions(ParseList *head, Inst *program) {
             case TYPE_NOP:
                 instruction.type = INST_NOP;
                 program[program_size] = instruction;
-                printf("Add instruction %d = NOP\n", program_size);
+                //printf("Add instruction %d = NOP\n", program_size);
                 break;
             case TYPE_PUSH:
                 head = head->next;
                 instruction.type = INST_PUSH;
-                instruction.value = atoi(head->value.text);
-                program[program_size] = instruction;
-                printf("Add instruction %d = PUSH %d\n", program_size, instruction.value);
+                set_value(&instruction, head, "PUSH", program_size);
+                program[program_size] = instruction;      
                 break;
             case TYPE_POP:
                 instruction.type = INST_POP;
@@ -33,8 +63,7 @@ int generate_instructions(ParseList *head, Inst *program) {
             case TYPE_INDUP:
                 head = head->next;
                 instruction.type = INST_INDUP;
-                instruction.value = atoi(head->value.text);
-                program[program_size] = instruction;
+                set_value(&instruction, head, "INDUP", program_size);
                 break;
             case TYPE_SWAP:
                 instruction.type = INST_SWAP;
@@ -43,13 +72,12 @@ int generate_instructions(ParseList *head, Inst *program) {
             case TYPE_INSWAP:
                 head = head->next;
                 instruction.type = INST_INSWAP;
-                instruction.value = atoi(head->value.text);
-                program[program_size] = instruction;
+                set_value(&instruction, head, "INSWAP", program_size);
                 break;
             case TYPE_ADD:
                 instruction.type = INST_ADD;
                 program[program_size] = instruction;
-                printf("Add instruction %d = ADD\n", program_size);
+                //printf("Add instruction %d = ADD\n", program_size);
                 break;
             case TYPE_SUB:
                 instruction.type = INST_SUB;
@@ -65,6 +93,27 @@ int generate_instructions(ParseList *head, Inst *program) {
                 break;
             case TYPE_MOD:
                 instruction.type = INST_MOD;
+                program[program_size] = instruction;
+                break;
+            case TYPE_ADD_F:
+                instruction.type = INST_ADD_F;
+                program[program_size] = instruction;
+                printf("Add instruction %d = ADDF\n", program_size);
+                break;
+            case TYPE_SUB_F:
+                instruction.type = INST_SUB_F;
+                program[program_size] = instruction;
+                break;
+            case TYPE_MUL_F:
+                instruction.type = INST_MUL_F;
+                program[program_size] = instruction;
+                break;
+            case TYPE_DIV_F:
+                instruction.type = INST_DIV_F;
+                program[program_size] = instruction;
+                break;
+            case TYPE_MOD_F:
+                instruction.type = INST_MOD_F;
                 program[program_size] = instruction;
                 break;
             case TYPE_CMPE:
@@ -94,24 +143,20 @@ int generate_instructions(ParseList *head, Inst *program) {
             case TYPE_JMP:
                 head = head->next;
                 instruction.type = INST_JMP;
-                // HACK: Replace JMP 0 with JMP program_size+1
-                // Remove after fixing case TYPE_LABEL in generate_list
-                instruction.value = atoi(head->value.text);
-                //instruction.value = program_size + 1;
                 program[program_size] = instruction;
-                printf("Add instruction %d = JMP %d\n", program_size, instruction.value);
+                set_value(&instruction, head, "JMP", program_size);
                 break;
             case TYPE_ZJMP:
                 head = head->next;
                 instruction.type = INST_ZJMP;
-                instruction.value = atoi(head->value.text);
                 program[program_size] = instruction;
+                set_value(&instruction, head, "ZJMP", program_size);
                 break;
             case TYPE_NZJMP:
                 head = head->next;
                 instruction.type = INST_NZJMP;
-                instruction.value = atoi(head->value.text);
                 program[program_size] = instruction;
+                set_value(&instruction, head, "NZJMP", program_size);
                 break;
             case TYPE_PRINT:
                 instruction.type = INST_PRINT;
@@ -120,6 +165,12 @@ int generate_instructions(ParseList *head, Inst *program) {
                 break;
             case TYPE_INT:
                 assert(false && "ERROR: Should not be INT\n");
+                break;
+            case TYPE_FLOAT:
+                assert(false && "ERROR: Should not be FLOAT\n");
+                break;
+            case TYPE_CHAR:
+                assert(false && "ERROR: Should not be CHAR\n");
                 break;
             case TYPE_LABEL_DEF:
                 assert(false && "ERROR: Should not be LABEL_DEF\n");
@@ -132,6 +183,7 @@ int generate_instructions(ParseList *head, Inst *program) {
                 program[program_size] = instruction;
                 break;
         }
+        //printf("\tJust added instruction type %d\n", program[program_size].type);
         head = head->next;
         ++program_size;
     }

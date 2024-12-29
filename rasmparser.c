@@ -28,7 +28,8 @@ void generate_list(ParseList *root, Lexer *lexer, HashMap* hashmap)
     assert(root != NULL && "Root cannot equal NULL\n");
     for (int index = 1; index <= lexer->stack_size; index++)
     {
-        printf("PARSE %d: ", index); print_token(lexer->token_stack[index]);
+        printf("PARSE %d: ", index); 
+        //print_token(lexer->token_stack[index]);
         switch (lexer->token_stack[index].type) {
             case TYPE_NONE:
                 assert(false && "Token should not be NONE\n");
@@ -40,7 +41,7 @@ void generate_list(ParseList *root, Lexer *lexer, HashMap* hashmap)
                 //printf("Parser: PUSH\n");
                 append(root, lexer->token_stack[index]);
                 index++;
-                if (lexer->token_stack[index].type != TYPE_INT) {
+                if (lexer->token_stack[index].type != TYPE_INT && lexer->token_stack[index].type != TYPE_FLOAT && lexer->token_stack[index].type != TYPE_CHAR && lexer->token_stack[index].type != TYPE_LABEL) {
                     fprintf(stderr, "ERROR: Expected type INT but found %s\n", "TODO: Implement token print");
                     exit(1);
                 }
@@ -55,7 +56,7 @@ void generate_list(ParseList *root, Lexer *lexer, HashMap* hashmap)
             case TYPE_INDUP:
                 append(root, lexer->token_stack[index]);
                 index++;
-                if (lexer->token_stack[index].type != TYPE_INT) {
+                if (lexer->token_stack[index].type != TYPE_INT && lexer->token_stack[index].type != TYPE_LABEL) {
                     fprintf(stderr, "ERROR: Expected type INT but found %s\n", "TODO: Implement token print");
                     exit(1);
                 }
@@ -66,7 +67,7 @@ void generate_list(ParseList *root, Lexer *lexer, HashMap* hashmap)
             case TYPE_INSWAP:
                 append(root, lexer->token_stack[index]);
                 index++;
-                if (lexer->token_stack[index].type != TYPE_INT) {
+                if (lexer->token_stack[index].type != TYPE_INT && lexer->token_stack[index].type != TYPE_LABEL) {
                     fprintf(stderr, "ERROR: Expected type INT but found %s\n", "TODO: Implement token print");
                     exit(1);
                 }
@@ -85,6 +86,21 @@ void generate_list(ParseList *root, Lexer *lexer, HashMap* hashmap)
                 append(root, lexer->token_stack[index]);
                 break;
             case TYPE_MOD:
+                append(root, lexer->token_stack[index]);
+                break;
+            case TYPE_ADD_F:
+                append(root, lexer->token_stack[index]);
+                break;
+            case TYPE_SUB_F:
+                append(root, lexer->token_stack[index]);
+                break;
+            case TYPE_MUL_F:
+                append(root, lexer->token_stack[index]);
+                break;
+            case TYPE_DIV_F:
+                append(root, lexer->token_stack[index]);
+                break;
+            case TYPE_MOD_F:
                 append(root, lexer->token_stack[index]);
                 break;
             case TYPE_CMPE:
@@ -107,25 +123,46 @@ void generate_list(ParseList *root, Lexer *lexer, HashMap* hashmap)
                 break;
             case TYPE_JMP:
                 append(root, lexer->token_stack[index]);
+                index++;
+                if (lexer->token_stack[index].type != TYPE_INT && lexer->token_stack[index].type != TYPE_LABEL) {
+                    fprintf(stderr, "ERROR: Expected type INT but found %s\n", "TODO: Implement token print");
+                    exit(1);
+                }
                 break;
             case TYPE_ZJMP:
                 append(root, lexer->token_stack[index]);
+                index++;
+                if (lexer->token_stack[index].type != TYPE_INT && lexer->token_stack[index].type != TYPE_LABEL) {
+                    fprintf(stderr, "ERROR: Expected type INT but found %s\n", "TODO: Implement token print");
+                    exit(1);
+                }
                 break;
             case TYPE_NZJMP:
                 append(root, lexer->token_stack[index]);
+                index++;
+                if (lexer->token_stack[index].type != TYPE_INT && lexer->token_stack[index].type != TYPE_LABEL) {
+                    fprintf(stderr, "ERROR: Expected type INT but found %s\n", "TODO: Implement token print");
+                    exit(1);
+                }
                 break;
             case TYPE_PRINT:
                 append(root, lexer->token_stack[index]);
                 break;
             case TYPE_INT:
-                append(root, lexer->token_stack[index]);
+                index -= 2;
+                break;
+            case TYPE_FLOAT:
+                index -= 2;
+                break;
+            case TYPE_CHAR:
+                index -= 2;
                 break;
             case TYPE_LABEL_DEF:
                 handle_token_def(lexer, index, hashmap);
                 append(root, lexer->token_stack[index]);
                 break;
             case TYPE_LABEL:
-                append(root, lexer->token_stack[index]);
+                index -= 2;
                 break;
             case TYPE_HALT:
                 append(root, lexer->token_stack[index]);
@@ -173,6 +210,6 @@ ParseList parser(Lexer lexer)
     ParseList root = {.value = lexer.token_stack[0], .next = NULL};
     generate_list(&root, &lexer, label_map);
     check_labels(&root, label_map);
-    print_list(&root);
+    //print_list(&root);
     return root;
 }
