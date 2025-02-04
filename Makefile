@@ -15,8 +15,8 @@ rvmi: ./src/rvmi.c ./src/rvm.c
 
 examples: ./examples/fib.rvm ./examples/123.rvm
 
-./examples/fib.rvm: ./examples/fib.rasm
+./examples/fib.rvm: rasm ./examples/fib.rasm
 	./rasm ./examples/fib.rasm ./examples/fib.rvm
 
-./examples/123.rvm: ./examples/123.rasm
+./examples/123.rvm: rasm ./examples/123.rasm
 	./rasm ./examples/123.rasm ./examples/123.rvm
