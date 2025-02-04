@@ -6,11 +6,11 @@ all: rasm rvmi
 
 .PHONY: all
 
-rasm: rasm.c rvm.c
-	$(CC) $(CFLAGS) -o rasm rasm.c $(LIBS)
+rasm: ./src/rasm.c ./src/rvm.c
+	$(CC) $(CFLAGS) -o rasm ./src/rasm.c $(LIBS)
 
-rvmi: rvmi.c rvm.c
-	$(CC) $(CFLAGS) -o rvmi rvmi.c $(LIBS)
+rvmi: ./src/rvmi.c ./src/rvm.c
+	$(CC) $(CFLAGS) -o rvmi ./src/rvmi.c $(LIBS)
 .PHONY: examples
 
 examples: ./examples/fib.rvm ./examples/123.rvm
