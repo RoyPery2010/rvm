@@ -78,7 +78,7 @@ void rvm_dump_stack(FILE *stream, const RVM *rvm);
 void rvm_load_program_from_memory(RVM *rvm, Inst *program, size_t program_size);
 
 void rvm_load_program_from_file(RVM *rvm, const char *file_path);
-void rvm_save_program_to_file(Inst *program, size_t program_size, const char *file_path);
+void rvm_save_program_to_file(const RVM *rvm, const char *file_path);
 
 
 typedef struct {

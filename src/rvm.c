@@ -249,13 +249,13 @@ void rvm_load_program_from_file(RVM *rvm, const char *file_path) {
     }
     fclose(f);
 }
-void rvm_save_program_to_file(Inst *program, size_t program_size, const char *file_path) {
+void rvm_save_program_to_file(const RVM *rvm, const char *file_path) {
     FILE *f = fopen(file_path, "wb");
     if (f == NULL) {
         fprintf(stderr, "ERROR: Could not open file `%s`: %s\n", file_path, strerror(errno));
         exit(1);
     }
-    fwrite(program, sizeof(program[0]), program_size, f);
+    fwrite(rvm->program, sizeof(rvm->program[0]), rvm->program_size, f);
     if (ferror(f)) {
         fprintf(stderr, "ERROR: Could not write to file `%s`: %s\n", file_path, strerror(errno));
         exit(1);

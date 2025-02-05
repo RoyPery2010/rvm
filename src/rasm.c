@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
     RVM rvm = {0};
     rvm.program_size = rvm_translate_source(source, rvm.program, RVM_PROGRAM_CAPACITY);
 
-    rvm_save_program_to_file(rvm.program, rvm.program_size, output_file_path);
+    rvm_save_program_to_file(&rvm, output_file_path);
 
     return 0;
 }
