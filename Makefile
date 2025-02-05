@@ -2,15 +2,15 @@ CC = gcc
 CFLAGS = -Wall -Wextra -Wswitch-enum -std=c11 -pedantic
 LIBS =
 
-all: rasm rvmi
+all: rasm rvme
 
 .PHONY: all
 
-rasm: ./src/rasm.c ./src/rvm.c
-	$(CC) $(CFLAGS) -o rasm ./src/rasm.c $(LIBS)
+rasm: ./src/rasm.c ./src/rvm.c ./src/rvm.h
+	$(CC) $(CFLAGS) -o rasm ./src/rasm.c ./src/rvm.c $(LIBS)
 
-rvmi: ./src/rvmi.c ./src/rvm.c
-	$(CC) $(CFLAGS) -o rvmi ./src/rvmi.c $(LIBS)
+rvme: ./src/rvme.c ./src/rvm.c ./src/rvm.h
+	$(CC) $(CFLAGS) -o rvme ./src/rvme.c ./src/rvm.c $(LIBS)
 .PHONY: examples
 
 examples: ./examples/fib.rvm ./examples/123.rvm

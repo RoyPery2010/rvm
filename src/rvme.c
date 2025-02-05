@@ -1,4 +1,4 @@
-#include "./rvm.c"
+#include "./rvm.h"
 int main(int argc, char **argv)
 {
     if (argc < 2) {
@@ -6,6 +6,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "ERROR: expected input\n");
         exit(1);
     }
+    RVM rvm = {0};
     rvm_load_program_from_file(&rvm, argv[1]);
     rvm_dump_stack(stdout, &rvm);
     for (int i = 0; i < 69 && !rvm.halt; ++i) {

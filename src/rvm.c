@@ -5,23 +5,7 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
-
-#define ARRAY_SIZE(xs) (sizeof(xs) / sizeof((xs)[0]))
-#define RVM_PROGRAM_CAPACITY 1024
-#define RVM_STACK_CAPACITY 1024
-#define RVM_EXECUTION_LIMIT 69
-
-
-typedef enum
-{
-    ERR_OK = 0,
-    ERR_STACK_OVERFLOW,
-    ERR_STACK_UNDERFLOW,
-    ERR_ILLEGAL_INST,
-    ERR_DIV_BY_ZERO,
-    ERR_ILLEGAL_INST_ACCESS,
-    ERR_ILLEGAL_OPERAND,
-} Err;
+#include "./rvm.h"
 
 const char *err_as_cstr(Err err)
 {
@@ -48,39 +32,7 @@ const char *err_as_cstr(Err err)
 
 
 
-typedef int64_t Word;
 
-typedef enum
-{
-    INST_NOP,
-    INST_PUSH,
-    INST_DUP,
-    INST_PLUS,
-    INST_MINUS,
-    INST_MULT,
-    INST_DIV,
-    INST_JMP,
-    INST_JMP_IF,
-    INST_EQ,
-    INST_HALT,
-    INST_PRINT_DEBUG,
-} Inst_Type;
-
-typedef struct
-{
-    Inst_Type type;
-    Word operand;
-} Inst;
-
-typedef struct
-{
-    Word stack[RVM_STACK_CAPACITY];
-    Word stack_size;
-    Inst program[RVM_PROGRAM_CAPACITY];
-    Word program_size;
-    Word ip;
-    int halt;
-} RVM;
 
 
 const char *inst_type_as_cstr(Inst_Type type)
@@ -261,7 +213,6 @@ void rvm_dump_stack(FILE *stream, const RVM *rvm)
 
 
 
-RVM rvm = {0};
 
 void rvm_load_program_from_memory(RVM *rvm, Inst *program, size_t program_size) {
     assert(program_size < RVM_PROGRAM_CAPACITY);
@@ -313,10 +264,7 @@ void rvm_save_program_to_file(Inst *program, size_t program_size, const char *fi
 }
 
 
-typedef struct {
-    size_t count;
-    const char *data;
-} String_View;
+
 
 String_View cstr_as_sv(const char *cstr) {
     return (String_View) {

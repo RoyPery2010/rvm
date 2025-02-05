@@ -1,4 +1,4 @@
-#include "./rvm.c"
+#include "./rvm.h"
 
 int main(int argc, char **argv) {
     if (argc < 3) {
@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
     const char *output_file_path = argv[2];
     
     String_View source = slurp_file(input_file_path);
-
+    RVM rvm = {0};
     rvm.program_size = rvm_translate_source(source, rvm.program, RVM_PROGRAM_CAPACITY);
 
     rvm_save_program_to_file(rvm.program, rvm.program_size, output_file_path);
