@@ -34,7 +34,7 @@ typedef int64_t Word;
 
 typedef enum
 {
-    INST_NOP,
+    INST_NOP = 0,
     INST_PUSH,
     INST_DUP,
     INST_PLUS,
