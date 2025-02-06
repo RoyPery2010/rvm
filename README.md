@@ -4,7 +4,7 @@
 ``` console
 $ make
 $ make examples
-$ ./rvme ./examples/fib.rvm
+$ ./rvme -i ./examples/fib.rvm -l 69
 ```
 ## Components
 ### rasm

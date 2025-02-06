@@ -355,23 +355,21 @@ int sv_to_int(String_View sv) {
 Inst rvm_translate_line(String_View line) {
     line = sv_trim_left(line);
     String_View inst_name = sv_chop_by_delim(&line, ' ');
+    String_View operand = sv_trim(sv_chop_by_delim(&line, '#'));
     if (sv_eq(inst_name, cstr_as_sv("push"))) {
         line = sv_trim_left(line);
-        int operand = sv_to_int(sv_trim_right(line));
-        return (Inst) {.type = INST_PUSH, .operand = operand};
+        return (Inst) {.type = INST_PUSH, .operand = sv_to_int(operand) };
     } else if (sv_eq(inst_name, cstr_as_sv("dup"))) {
         line = sv_trim_left(line);
-        int operand = sv_to_int(sv_trim_right(line));
-        return (Inst) {.type = INST_DUP, .operand = operand};
+        return (Inst) {.type = INST_DUP, .operand = sv_to_int(operand) };
     } else if (sv_eq(inst_name, cstr_as_sv("plus"))) {
         return (Inst) {.type = INST_PLUS};
     } else if (sv_eq(inst_name, cstr_as_sv("jmp"))) {
         line = sv_trim_left(line);
-        int operand = sv_to_int(sv_trim_right(line));
-        return (Inst) {.type = INST_JMP, .operand = operand};
+        return (Inst) {.type = INST_JMP, .operand = sv_to_int(operand) };
     }
     else {
-        fprintf(stderr, "ERROR: unknown instruction `%.*s`", (int) inst_name.count, inst_name.data);
+        fprintf(stderr, "ERROR: unknown instruction `%.*s`\n", (int) inst_name.count, inst_name.data);
         exit(1);
     }
 }
@@ -382,7 +380,7 @@ size_t rvm_translate_source(String_View source, Inst *program, size_t program_ca
     while (source.count > 0) {
         assert(program_size < program_capacity);
         String_View line = sv_chop_by_delim(&source, '\n');
-        if (line.count > 0) {
+        if (line.count > 0 && *line.data != '#') {
             program[program_size++] = rvm_translate_line(line);
         }
     }
