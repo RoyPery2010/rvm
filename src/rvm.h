@@ -11,7 +11,6 @@
 #define ARRAY_SIZE(xs) (sizeof(xs) / sizeof((xs)[0]))
 #define RVM_PROGRAM_CAPACITY 1024
 #define RVM_STACK_CAPACITY 1024
-#define RVM_EXECUTION_LIMIT 69
 
 
 
@@ -68,6 +67,7 @@ typedef struct
 const char *inst_type_as_cstr(Inst_Type type);
 
 Err rvm_execute_inst(RVM *rvm);
+Err rvm_execute_program(RVM *rvm, int limit);
 
 void rvm_dump_stack(FILE *stream, const RVM *rvm);
 
@@ -106,6 +106,6 @@ Inst rvm_translate_line(String_View line);
 
 size_t rvm_translate_source(String_View source, Inst *program, size_t program_capacity);
 
-String_View slurp_file(const char *file_path);
+String_View sv_slurp_file(const char *file_path);
 
 #endif // RVM_H_

@@ -79,6 +79,19 @@ const char *inst_type_as_cstr(Inst_Type type)
 #define MAKE_INST_HALT {.type = INST_HALT, .operand = (addr)}
 #define MAKE_INST_DUP(addr) {.type = INST_DUP, .operand = (addr)}
 
+Err rvm_execute_program(RVM *rvm, int limit) {
+    while(limit != 0 && !rvm->halt) {
+        Err err = rvm_execute_inst(rvm);
+        if (err != ERR_OK) {
+            return err;
+        }
+        if (limit > 0) {
+            --limit;
+        }
+    }
+    return ERR_OK;
+}
+
 Err rvm_execute_inst(RVM *rvm)
 {
     if (rvm->ip < 0 || rvm->ip >= rvm->program_size) {
@@ -376,7 +389,7 @@ size_t rvm_translate_source(String_View source, Inst *program, size_t program_ca
     return program_size;
 }
 
-String_View slurp_file(const char *file_path) {
+String_View sv_slurp_file(const char *file_path) {
     FILE *f = fopen(file_path, "r");
     if (f == NULL) {
         fprintf(stderr, "ERROR: Could not open file `%s`: %s\n", file_path, strerror(errno));
